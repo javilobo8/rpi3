@@ -1,0 +1,60 @@
+XPT2046 Touch Screen instructions for Raspbery Pi 3
+Quote
+Thu Apr 07, 2016 6:12 pm
+
+Hi, 
+
+Following instructions will save tons of time for Raspberry Pi3 users who had purchased 
+display like 5 Inch Touch Display from Waveshare which uses XPT2046 driver chip.
+Tested with 5 Inch 800x480 and 4 inch IPS 800x480 displays.
+
+
+0) In OS Jessie NO DRIVER REQUIRED! for XPT2046 or ADS7846 Touchscreen. Do not install original driver from Waveshare or any other driver announced as compatible. You will kill your Jessie for sure. At least Waveshare driver totally disables WiFi module functionality!!!
+
+1 ) sudo nano /boot/config.txt
+add
+Code: Select all
+
+dtparam=i2c_arm=on
+dtparam=spi=on
+dtoverlay=ads7846,penirq=25,speed=10000,penirq_pull=2,xohms=150
+2) Create directory /etc/X11/xorg.conf.d and file 99-calibration.conf in that directory
+Add the following into the file
+Code: Select all
+
+Section "InputClass"
+        Identifier "calibration"
+        MatchProduct "ADS7846 Touchscreen"
+        Option "Calibration" "3853 170 288 3796"
+        Option "SwapAxes" "1"
+EndSection
+3) REBOOT aaaaand, have fun!!!!!!
+
+AAAAAND that is basically it!! I have moved the rest of old instructions to comment cause they are not needed any more
+
+FAQ:
+
+What else do i need?
+Just to maintain the testing and supportability, I recommend you to perform the following installations:
+sudo apt-get update
+sudo apt-get install -y libts-bin evtest xinput python-dev python-pip
+sudo pip install evdev
+sudo apt-get install -y xinput-calibrator
+
+After those installations you will be able to test touch and other controllers and calibrate screen. 
+
+What on screen keyboard for Raspberry Pi do you recommend?
+As the onscreen keyboard I use xvkbd cause it is resizable and can be tuned
+sudo apt-get install -y xvkbd
+
+I did all instructions but touch does not work and reacts strangely. What can be the reason?
+Please take a look at this thread: viewtopic.php?f=44&t=173993&p=1112311#p1112311
+
+Can I have some screensavers and screen blanking controll?
+yes you can
+sudo apt-get install -y xscreensaver xscreensaver-data-extra xscreensaver-gl-extra
+However, some screensavers may be buggy at RPI. And GL ones eat current so do not use them in battery operation mode.
+
+What current are we talking about? How much will my Raspberry Pi drain from the battery?
+RPI 2@900mhz+ Screen with backlight 650mA - 2.1A (>0.88A with GLMatrix full screen)
+RPI 3@1200mhz + Screen with backlight 650mA - 2.9A (>1A with GLMatrix full screen)
